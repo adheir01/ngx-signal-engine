@@ -1,0 +1,40 @@
+version: 2
+
+sources:
+  - name: public
+    tables:
+      - name: ngx_prices
+      - name: global_prices
+      - name: signals
+      - name: signal_explanations
+      - name: backtest_runs
+      - name: backtest_trades
+
+models:
+  - name: stg_ngx_prices
+    columns:
+      - name: ticker
+        tests: [not_null]
+      - name: trade_date
+        tests: [not_null]
+      - name: close_price
+        tests: [not_null]
+
+  - name: stg_signals
+    columns:
+      - name: signal_id
+        tests: [unique, not_null]
+      - name: signal
+        tests:
+          - accepted_values:
+              values: ["BUY", "SELL", "HOLD"]
+
+  - name: mart_signal_performance
+    columns:
+      - name: ticker
+        tests: [not_null]
+
+  - name: mart_backtest_results
+    columns:
+      - name: ticker
+        tests: [not_null]

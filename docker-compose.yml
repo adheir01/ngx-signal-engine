@@ -1,0 +1,58 @@
+version: "3.9"
+
+services:
+  db:
+    image: postgres:15
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "127.0.0.1:5436:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./sql/init.sql:/docker-entrypoint-initdb.d/init.sql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ${POSTGRES_DB}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  ingestion:
+    build: ./ingestion
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+    volumes:
+      - ./data:/app/data
+    command: python run_ingest.py
+
+  signals:
+    build: ./ingestion
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+    volumes:
+      - ./signals:/app/signals
+    command: python signals/run_signals.py
+
+  dashboard:
+    build: ./dashboard
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+    ports:
+      - "127.0.0.1:8504:8501"
+
+volumes:
+  pgdata:
