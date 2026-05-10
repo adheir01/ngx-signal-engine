@@ -1,4 +1,4 @@
-# Project 04 — NGX Stock Signal Engine
+# NGX Stock Signal Engine
 
 > Personal investment tool for the Nigerian Stock Exchange.  
 > Technical signals, LLM-filtered explanations, backtesting, and NGX vs EU/US comparison.
@@ -26,7 +26,8 @@ cp .env.example .env
 # 2. Start the database
 docker-compose up db -d
 
-# 3. Place NGX CSV exports in ./data/
+# 3. Copy-paste daily NGX price table into Excel, save as CSV, place in ./data/
+See NGX CSV Format section below for details
 
 # 4. Run ingestion
 docker-compose run ingestion
@@ -44,13 +45,18 @@ docker-compose up dashboard
 
 ## NGX CSV Format
 
-Place CSV files in `./data/`. Expected columns:
+Place CSV files in `./data/`. Download directly from:
+https://ngxgroup.com/exchange/data/equities-price-list/
 
-```
-Date, Symbol, Open, High, Low, Close, Volume
-```
+The scraper accepts raw NGX exports. Supported column names:
+- Date or Trade Date
+- Company or Symbol
+- Opening Price or Open
+- High, Low, Close, Volume
 
-Export from: https://ngxgroup.com/exchange/data/equities-price-list/
+Note: `--` values in High/Low/Volume are handled automatically.
+NGX does not provide historical data via free download — collect
+daily exports manually. 30 trading days minimum for meaningful signals.
 
 ## Signal Rules
 
@@ -74,3 +80,28 @@ Signal fired when score ≥ 25. Configurable via `.env`.
 | P03 Engagement Anomaly Dashboard | 5434 | 8503 |
 | Tribe AdCortex | 5435 | — |
 | **P04 NGX Signal Engine** | **5436** | **8504** |
+
+## Troubleshooting
+
+**Container not picking up code changes**
+Delete the cached image and rebuild:
+```bash
+docker rmi ngx-signal-engine-ingestion
+docker-compose build --no-cache ingestion
+```
+
+**Orphan containers warning**
+```bash
+docker-compose down --remove-orphans
+```
+
+**No signals showing on dashboard**
+Signals require minimum 14–20 days of price history per ticker
+for RSI and SMA indicators to compute. Collect daily CSVs and
+re-run ingestion + signals each day.
+
+**dbt mart tables missing (Comparison page empty)**
+```bash
+cd dbt
+dbt run
+```
