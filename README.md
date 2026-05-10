@@ -94,8 +94,34 @@ Streamlit dashboard
 
 ## Project Structure
 
-```text
-...
+```
+ngx-signal-engine/
+├── ingestion/
+│   ├── ngx_scraper.py       # NGX API + CSV fallback
+│   ├── yfinance_loader.py   # EU/US comparison data
+│   ├── db_writer.py         # SQLAlchemy ORM models + upsert
+│   ├── run_ingest.py        # ingestion entry point
+│   └── scheduler.py         # APScheduler daily pipeline
+├── signals/
+│   ├── indicators.py        # RSI, SMA, EMA, volume change
+│   ├── signal_engine.py     # BUY/SELL/HOLD rule engine
+│   ├── backtester.py        # historical trade simulation
+│   ├── gemini_explainer.py  # LLM explanation + risk flag
+│   └── run_signals.py       # signals entry point
+├── dbt/
+│   └── models/
+│       ├── staging/         # cleaned views over raw tables
+│       └── marts/           # aggregated analytics tables
+├── dashboard/
+│   ├── app.py               # Streamlit entry point
+│   └── pages/
+│       ├── 01_signals.py        # current BUY/SELL/HOLD signals
+│       ├── 02_opportunities.py  # top ranked BUY opportunities
+│       ├── 03_backtest.py       # backtest results
+│       └── 04_comparison.py     # NGX vs EU/US comparison
+├── sql/
+│   └── init.sql             # database schema
+└── data/                    # local CSV fallback (gitignored)
 ```
 
 ## dbt
