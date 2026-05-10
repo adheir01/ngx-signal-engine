@@ -27,7 +27,7 @@ def run():
     logger.info(f"NGX: inserted={ngx_inserted}, skipped={ngx_skipped}")
 
     session.add(IngestAudit(
-        source="NGX_CSV",
+        source="NGX_API",
         tickers_loaded=list({r["ticker"] for r in ngx_rows}),
         rows_inserted=ngx_inserted,
         rows_skipped=ngx_skipped,
