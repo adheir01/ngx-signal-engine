@@ -71,6 +71,7 @@ Meaningful signals require minimum 20 trading days of history
 per ticker — RSI and SMA need sufficient price history to compute.
 
 ## Project Structure
+
 ngx-signal-engine/
 ├── ingestion/
 │   ├── ngx_scraper.py       # NGX API + CSV fallback
