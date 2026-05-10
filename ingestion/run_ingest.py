@@ -5,7 +5,7 @@ Entry point — loads NGX CSV data and global yfinance data into PostgreSQL.
 
 import logging
 from db_writer import get_session, NGXPrice, GlobalPrice, IngestAudit, upsert_prices
-from ngx_scraper import load_all_csvs
+from ngx_scraper import load_all_csvs, scrape_ngxgroup
 from yfinance_loader import fetch_global_prices
 
 logging.basicConfig(level=logging.INFO, format="%(asctime)s [%(levelname)s] %(message)s")
@@ -17,7 +17,12 @@ def run():
 
     # ── NGX ──
     logger.info("=== NGX ingestion ===")
-    ngx_rows = load_all_csvs()
+    try:
+        ngx_rows = scrape_ngxgroup()
+        logger.info("Using live NGX API data")
+    except Exception as e:
+        logger.warning(f"NGX API failed ({e}), falling back to CSVs")
+        ngx_rows = load_all_csvs()
     ngx_inserted, ngx_skipped = upsert_prices(session, NGXPrice, ngx_rows)
     logger.info(f"NGX: inserted={ngx_inserted}, skipped={ngx_skipped}")
 

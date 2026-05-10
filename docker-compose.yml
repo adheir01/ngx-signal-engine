@@ -54,5 +54,16 @@ services:
     ports:
       - "127.0.0.1:8504:8501"
 
+  scheduler:
+    build: ./ingestion
+    command: python scheduler.py
+    depends_on:
+      db:
+        condition: service_healthy
+    env_file: .env
+    environment:
+      PYTHONPATH: /app
+    restart: unless-stopped
+
 volumes:
   pgdata:
