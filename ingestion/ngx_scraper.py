@@ -160,6 +160,8 @@ def scrape_ngxgroup() -> list[dict]:
         "TradeDate":    "trade_date",
     }
     df = df.rename(columns=rename_map)
+    # Stocks that closed unchanged have null ClosePrice — use PrevClosingPrice
+    df["close_price"] = df["close_price"].fillna(df["PrevClosingPrice"])
 
     df["trade_date"] = pd.to_datetime(
         df["trade_date"], errors="coerce"
