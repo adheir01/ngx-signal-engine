@@ -11,7 +11,30 @@ sources:
       - name: backtest_trades
 
 models:
-  - name: stg_ngx_prices
+  - name: stg_prices
+    columns:
+      - name: ticker
+        tests: [not_null]
+      - name: trade_date
+        tests: [not_null]
+      - name: close_price
+        tests: [not_null]
+
+  - name: int_returns
+    columns:
+      - name: ticker
+        tests: [not_null]
+      - name: trade_date
+        tests: [not_null]
+
+  - name: int_moving_averages
+    columns:
+      - name: ticker
+        tests: [not_null]
+      - name: trade_date
+        tests: [not_null]
+
+  - name: fct_features
     columns:
       - name: ticker
         tests: [not_null]
@@ -27,14 +50,5 @@ models:
       - name: signal
         tests:
           - accepted_values:
-              values: ["BUY", "SELL", "HOLD"]
-
-  - name: mart_signal_performance
-    columns:
-      - name: ticker
-        tests: [not_null]
-
-  - name: mart_backtest_results
-    columns:
-      - name: ticker
-        tests: [not_null]
+              arguments:
+                values: ["BUY", "SELL", "HOLD"]

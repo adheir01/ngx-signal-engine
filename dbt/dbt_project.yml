@@ -13,5 +13,7 @@ models:
   ngx_signal_engine:
     staging:
       +materialized: view
+    intermediate:
+      +materialized: view
     marts:
       +materialized: table
