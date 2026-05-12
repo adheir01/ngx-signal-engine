@@ -9,12 +9,13 @@ import os
 import json
 import logging
 
-import google.generativeai as genai
+from google import genai
+
+client = genai.Client(api_key=os.environ["GEMINI_API_KEY"])
+MODEL = "gemini-2.5-flash"
 
 logger = logging.getLogger(__name__)
 
-genai.configure(api_key=os.environ["GEMINI_API_KEY"])
-MODEL = "gemini-2.5-flash"
 
 
 SYSTEM_PROMPT = """You are a financial analyst assistant specialising in emerging market equities,
@@ -56,16 +57,18 @@ Ticker: {ticker} (NGX — Nigerian Stock Exchange)
 Signal: {signal}
 Signal Strength: {strength}/100
 Close Price: ₦{close}
-RSI (14): {rsi:.1f if rsi else 'N/A'}
+RSI (14): {f"{rsi:.1f}" if rsi is not None else 'N/A'}
 Rules triggered: {', '.join(rules) if rules else 'None'}
 
 Provide your analysis.
 """
 
     try:
-        model    = genai.GenerativeModel(MODEL, system_instruction=SYSTEM_PROMPT)
-        response = model.generate_content(prompt)
-        raw      = response.text.strip()
+        response = client.models.generate_content(
+            model=MODEL,
+            contents=SYSTEM_PROMPT + "\n\n" + prompt,
+        )
+        raw = response.text.strip()
 
         parsed = json.loads(raw)
         return {
