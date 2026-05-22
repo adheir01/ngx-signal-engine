@@ -1,6 +1,7 @@
-# Project 04 — NGX Stock Signal Engine
+# NGX Market Signal & Decision System
 
-> Personal investment tool for the Nigerian Stock Exchange.
+> Personal investment tool designed to standardize signal generation and decision-making in a market with limited data accessibility and tooling.
+> The Nigerian Stock Exchange (NGX).
 > Technical signals, LLM-filtered explanations, backtesting, and NGX vs EU/US comparison.
 
 ## Stack
@@ -33,7 +34,7 @@ Python scoring layer — reads fct_features, applies weighted rules
 BUY / SELL / HOLD + signal strength score (0–100)
     ↓
 Gemini 2.5 Flash — explanation + conviction + risk flag
-LLM feeds back into scoring:
+LLM feedback loop — adjusts score and filters high-risk signals:
   - Low conviction → score penalty (-5)
   - HIGH risk BUY → downgraded to HOLD
     ↓
@@ -42,6 +43,10 @@ HIGH risk positions excluded by LLM filter
     ↓
 Streamlit dashboard — signals, opportunities, backtest,
                        NGX vs global, portfolio
+
+The system follows a feature-store → scoring → decision architecture, 
+where dbt acts as the feature layer, Python handles scoring, 
+and the portfolio layer translates signals into actions.
 ```
 
 ## Quick Start
@@ -150,6 +155,8 @@ LLM output feeds back into the system:
 Free tier limit: 20 requests/day — capped automatically.
 
 Meaningful signals require minimum 20 trading days of history.
+
+Scores represent relative signal strength and are used for ranking and portfolio selection rather than strict rule triggering.
 
 ## Project Structure
 
