@@ -160,6 +160,7 @@ Scores represent relative signal strength and are used for ranking and portfolio
 
 ## Project Structure
 
+```
 ngx-signal-engine/
 ├── ingestion/
 │   ├── ngx_scraper.py        # NGX JSON API + CSV fallback
@@ -189,6 +190,7 @@ ngx-signal-engine/
 ├── sql/
 │   └── init.sql              # database schema
 └── data/                     # local CSV fallback (gitignored)
+```
 
 ## Troubleshooting
 
