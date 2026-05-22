@@ -214,7 +214,9 @@ ngx-signal-engine/
 │       └── 05_portfolio.py   # portfolio positions + LLM exclusions
 ├── sql/
 │   └── init.sql              # database schema
-└── data/                     # local CSV fallback (gitignored)
+├── data/                     # local CSV fallback (gitignored)
+└── docs/
+    └── screenshots/          # dashboard preview images for README
 ```
 
 ## Troubleshooting
