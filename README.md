@@ -16,6 +16,7 @@
 | LLM | Gemini 2.5 Flash (google-genai SDK) |
 | Data | NGX JSON API + yfinance |
 | Scheduler | APScheduler (daily at 16:00 WAT) |
+| Portfolio | Decision layer (top 5, equal weight, LLM filtered) |
 | Infrastructure | Docker + docker-compose |
 
 ## Pipeline Overview
@@ -26,16 +27,21 @@ NGX JSON API (auto) + CSV fallback (manual)
 Daily ingestion — PostgreSQL via SQLAlchemy ORM
     ↓
 dbt feature layer — staging → intermediate → fct_features
-(returns, momentum, SMA, EMA, volume ratio)
+(returns, momentum, SMA/EMA, volume ratio)
     ↓
 Python scoring layer — reads fct_features, applies weighted rules
 BUY / SELL / HOLD + signal strength score (0–100)
     ↓
-Gemini 2.5 Flash — explanation + risk flag (high conviction only)
+Gemini 2.5 Flash — explanation + conviction + risk flag
+LLM feeds back into scoring:
+  - Low conviction → score penalty (-5)
+  - HIGH risk BUY → downgraded to HOLD
     ↓
-Backtesting — simulated trade history
+Portfolio construction — top 5 BUY, equal weight (20% each)
+HIGH risk positions excluded by LLM filter
     ↓
-Streamlit dashboard — signals, opportunities, backtest, comparison
+Streamlit dashboard — signals, opportunities, backtest,
+                       NGX vs global, portfolio
 ```
 
 ## Quick Start
@@ -135,8 +141,13 @@ Features come from `fct_features`. Python applies weights and ranks.
 
 Signal thresholds: BUY ≥ 25 | SELL ≤ -15 | HOLD = everything else
 
-Gemini explanations only fire for signals with strength ≥ 30
-to stay within the free tier (20 requests/day).
+Gemini explanations fire for signals with strength ≥ 30.
+LLM output feeds back into the system:
+- conviction = Low → score -5
+- risk_flag = HIGH + BUY → downgraded to HOLD
+- risk_flag = HIGH → excluded from portfolio
+
+Free tier limit: 20 requests/day — capped automatically.
 
 Meaningful signals require minimum 20 trading days of history.
 
@@ -151,6 +162,7 @@ ngx-signal-engine/
 │   └── scheduler.py          # APScheduler — daily at 16:00 WAT
 ├── signals/
 │   ├── scoring.py            # weighted scoring from fct_features
+│   ├── portfolio.py          # decision layer — construct + save portfolio
 │   ├── backtester.py         # historical trade simulation
 │   ├── gemini_explainer.py   # LLM explanation + risk flag
 │   └── run_signals.py        # signals entry point
@@ -165,7 +177,8 @@ ngx-signal-engine/
 │       ├── 01_signals.py     # current BUY/SELL/HOLD + LLM explanations
 │       ├── 02_opportunities.py  # top ranked BUY signals
 │       ├── 03_backtest.py    # backtest results
-│       └── 04_comparison.py  # NGX vs EU/US price behaviour
+│       ├── 04_comparison.py  # NGX vs EU/US price behaviour
+│       └── 05_portfolio.py   # portfolio positions + LLM exclusions
 ├── sql/
 │   └── init.sql              # database schema
 └── data/                     # local CSV fallback (gitignored)
@@ -192,6 +205,12 @@ dbt + signals each day.
 Run dbt then signals manually:
 ```bash
 cd dbt && dbt run && cd ..
+docker-compose run signals
+```
+
+**Portfolio page empty**
+Run signals first — portfolio is built at the end of the signal pipeline:
+```bash
 docker-compose run signals
 ```
 
