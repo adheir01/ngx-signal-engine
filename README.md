@@ -55,22 +55,22 @@ Dashboard Preview
 - Current Signals (with LLM explanations)
 ![Signals](docs/screenshots/signals.png)
 
-Shows BUY / SELL / HOLD signals with strength scores, RSI, and LLM-generated explanations including risk flags.
+    Shows BUY / SELL / HOLD signals with strength scores, RSI, and LLM-generated explanations including risk flags.
 
 - Top Opportunities (Ranked Signals)
 ![Signals](docs/screenshots/opportunities.png)
 
-Ranks top BUY signals by score, highlighting strongest opportunities and LLM risk classifications.
+    Ranks top BUY signals by score, highlighting strongest opportunities and LLM risk classifications.
 
 - Portfolio Construction (Decision Layer)
 ![Signals](docs/screenshots/portfolio.png)
 
-Top 5 BUY signals selected, equal-weighted (20% each), with high-risk positions excluded by the LLM filter.
+    Top 5 BUY signals selected, equal-weighted (20% each), with high-risk positions excluded by the LLM filter.
 
 - NGX vs Global Markets Comparison
 ![Signals](docs/screenshots/comparison.png)
 
-Compares volatility and volume behavior between NGX and EU/US markets, highlighting differences in price discovery.
+    Compares volatility and volume behavior between NGX and EU/US markets, highlighting differences in price discovery.
 
 
 
