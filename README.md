@@ -123,6 +123,7 @@ comparison against NGX.
 Features are computed in dbt, not Python. This keeps analytical
 logic version-controlled, testable, and reproducible.
 
+```
 staging/
 stg_prices.sql          — unified NGX + global prices
 stg_ngx_prices.sql      — NGX only view
@@ -136,6 +137,7 @@ fct_features.sql         — master feature table (one row per ticker per day)
 mart_signal_performance.sql
 mart_backtest_results.sql
 mart_ngx_vs_global.sql
+```
 
 Run dbt after each ingestion:
 ```bash
