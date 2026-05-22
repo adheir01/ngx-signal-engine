@@ -76,6 +76,7 @@ CREATE TABLE IF NOT EXISTS signal_explanations (
     trade_date      DATE NOT NULL,
     llm_model       TEXT DEFAULT 'gemini-2.5-flash',
     explanation     TEXT,
+    conviction     TEXT,            -- High / Medium / Low
     risk_flag       TEXT CHECK (risk_flag IN ('LOW', 'MEDIUM', 'HIGH')),
     risk_reasoning  TEXT,
     prompt_tokens   INTEGER,
@@ -123,6 +124,26 @@ CREATE TABLE IF NOT EXISTS ingest_audit (
     errors          TEXT[],
     run_at          TIMESTAMPTZ DEFAULT NOW()
 );
+
+-- ── PORTFOLIO ────────────────────────────────────────────────
+
+CREATE TABLE IF NOT EXISTS portfolio_positions (
+    id              SERIAL PRIMARY KEY,
+    run_date        DATE NOT NULL,
+    ticker          TEXT NOT NULL,
+    signal          TEXT NOT NULL,
+    score           NUMERIC(8, 2),
+    weight          NUMERIC(8, 4),
+    close_price     NUMERIC(12, 4),
+    conviction      TEXT,            -- from LLM: High / Medium / Low
+    risk_flag       TEXT,            -- from LLM: LOW / MEDIUM / HIGH
+    excluded        BOOLEAN DEFAULT FALSE,
+    exclusion_reason TEXT,
+    created_at      TIMESTAMPTZ DEFAULT NOW(),
+    UNIQUE (run_date, ticker)
+);
+
+CREATE INDEX IF NOT EXISTS idx_portfolio_run_date ON portfolio_positions (run_date DESC);
 
 -- ── INDEXES ──────────────────────────────────────────────────
 

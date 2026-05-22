@@ -18,6 +18,7 @@ sys.path.insert(0, os.path.join(os.path.dirname(__file__), "..", "ingestion"))
 from db_writer import get_session, NGXPrice, BacktestRun, BacktestTrade
 from scoring import run_scoring
 from backtester import run_backtest
+from portfolio import run_portfolio
 from sqlalchemy import select
 import pandas as pd
 
@@ -71,6 +72,10 @@ def run():
         session.flush()
         for trade in result.get("trades", []):
             session.add(BacktestTrade(run_id=bt_run.id, **trade))
+
+    # ── Step 4: portfolio construction ──
+    logger.info("Constructing portfolio...")
+    run_portfolio()
 
     session.commit()
     session.close()

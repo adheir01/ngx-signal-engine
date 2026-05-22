@@ -1,13 +1,13 @@
-"""
+﻿"""
 scoring.py
 Reads features from dbt fct_features mart and produces
 BUY / SELL / HOLD signals via a weighted scoring approach.
 
 Architecture:
-  dbt (fct_features) → scoring.py → signals table
+  dbt (fct_features) â†’ scoring.py â†’ signals table
 
 Replaces the old indicators.py + signal_engine.py combination.
-Features are computed and tested in dbt — Python only scores.
+Features are computed and tested in dbt â€” Python only scores.
 """
 
 import logging
@@ -25,7 +25,7 @@ from gemini_explainer import explain_signal
 logger = logging.getLogger(__name__)
 
 
-# ── Scoring weights ───────────────────────────────────────────────────────────
+# â”€â”€ Scoring weights â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Adjust these without touching any other file.
 # Total possible score: 100
 
@@ -102,7 +102,7 @@ def score_row(row: pd.Series) -> tuple[int, list[str]]:
 def determine_signal(score: int) -> str:
     """
     Rank-based signal determination.
-    Ranking > hard thresholds — avoids cliff-edge effects.
+    Ranking > hard thresholds â€” avoids cliff-edge effects.
     """
     if score >= 25:
         return "BUY"
@@ -156,7 +156,7 @@ def run_scoring():
             "signal_strength": score,
             "triggered_rules": triggered,
             "close_price":     row["close_price"],
-            "rsi_14":          None,   # RSI moved to dbt — add later
+            "rsi_14":          None,   # RSI moved to dbt â€” add later
             "sma_crossover":   row["sma_trend"] in ("bullish", "bearish"),
             "volume_spike":    bool(row["volume_spike"]),
         })
@@ -186,16 +186,31 @@ def run_scoring():
         session.flush()
         inserted += 1
 
-        # Gemini for top BUY/SELL only � cap at 15 calls to stay within free tier
+        # Gemini for BUY/SELL only — high conviction signals
         if sig["signal"] in ("BUY", "SELL") and sig["signal_strength"] >= 30:
             logger.info(f"Calling Gemini for {sig['ticker']} {sig['signal']}...")
             explanation = explain_signal(sig)
             if explanation:
+                # ── LLM feeds back into scoring ──
+                conviction = explanation.get("conviction")
+                risk_flag  = explanation.get("risk_flag")
+
+                # Low conviction → score penalty
+                if conviction == "Low":
+                    logger.info(f"{sig['ticker']}: score -{5} for Low conviction")
+                    signal_row.signal_strength -= 5
+
+                # High risk → downgrade signal
+                if risk_flag == "HIGH" and sig["signal"] == "BUY":
+                    logger.info(f"{sig['ticker']}: BUY downgraded to HOLD — LLM HIGH risk")
+                    signal_row.signal = "HOLD"
+
                 session.add(SignalExplanation(
                     signal_id      = signal_row.id,
                     ticker         = sig["ticker"],
                     trade_date     = sig["trade_date"],
                     explanation    = explanation.get("explanation"),
+                    conviction     = explanation.get("conviction"),
                     risk_flag      = explanation.get("risk_flag"),
                     risk_reasoning = explanation.get("risk_reasoning"),
                     prompt_tokens  = explanation.get("prompt_tokens"),
@@ -208,4 +223,4 @@ def run_scoring():
     sell_count = sum(1 for r in results if r["signal"] == "SELL")
     hold_count = sum(1 for r in results if r["signal"] == "HOLD")
 
-    logger.info(f"Scoring complete — BUY: {buy_count}, SELL: {sell_count}, HOLD: {hold_count}, inserted: {inserted}")
+    logger.info(f"Scoring complete â€” BUY: {buy_count}, SELL: {sell_count}, HOLD: {hold_count}, inserted: {inserted}")

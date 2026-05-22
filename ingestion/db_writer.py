@@ -136,6 +136,7 @@ class SignalExplanation(Base):
     trade_date     = Column(Date, nullable=False)
     llm_model      = Column(String, default="gemini-2.5-flash")
     explanation    = Column(Text)
+    conviction     = Column(String)
     risk_flag      = Column(String)   # LOW / MEDIUM / HIGH
     risk_reasoning = Column(Text)
     prompt_tokens  = Column(Integer)
@@ -190,6 +191,26 @@ class IngestAudit(Base):
     rows_skipped   = Column(Integer)
     errors         = Column(ARRAY(Text))
     run_at         = Column(DateTime(timezone=True), default=func.now())
+
+
+class PortfolioPosition(Base):
+    __tablename__ = "portfolio_positions"
+    __table_args__ = (
+        UniqueConstraint("run_date", "ticker", name="uq_portfolio_run_ticker"),
+    )
+
+    id               = Column(Integer, primary_key=True)
+    run_date         = Column(Date, nullable=False)
+    ticker           = Column(String, nullable=False)
+    signal           = Column(String, nullable=False)
+    score            = Column(Numeric(8, 2))
+    weight           = Column(Numeric(8, 4))
+    close_price      = Column(Numeric(12, 4))
+    conviction       = Column(String)
+    risk_flag        = Column(String)
+    excluded         = Column(Boolean, default=False)
+    exclusion_reason = Column(String)
+    created_at       = Column(DateTime(timezone=True), default=func.now())
 
 
 # ── Upsert helpers ────────────────────────────────────────────────────────────
