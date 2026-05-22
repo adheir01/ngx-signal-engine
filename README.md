@@ -250,4 +250,4 @@ docker exec -it ngx-signal-engine-db-1 psql -U ngx_user -d ngx_signals -c \
 | P02 Influencer ROI Scorer | 5433 | 8502 |
 | P03 Engagement Anomaly Dashboard | 5434 | 8503 |
 | Tribe AdCortex | 5435 | — |
-| **P04 NGX Signal Engine** | **5436** | **8504** |
+| **NGX Signal Engine** | **5436** | **8504** |
