@@ -186,8 +186,8 @@ def run_scoring():
         session.flush()
         inserted += 1
 
-        # Gemini for BUY/SELL only
-        if sig["signal"] in ("BUY", "SELL"):
+        # Gemini for top BUY/SELL only — cap at 15 calls to stay within free tier
+        if sig["signal"] in ("BUY", "SELL") and sig["signal_strength"] >= 30:
             logger.info(f"Calling Gemini for {sig['ticker']} {sig['signal']}...")
             explanation = explain_signal(sig)
             if explanation:

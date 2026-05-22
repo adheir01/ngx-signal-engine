@@ -64,10 +64,23 @@ Provide your analysis.
 """
 
     try:
-        response = client.models.generate_content(
-            model=MODEL,
-            contents=SYSTEM_PROMPT + "\n\n" + prompt,
-        )
+        import time
+        time.sleep(2)  # 2 second pause between calls — stays within free tier burst limit
+        
+        for attempt in range(3):  # retry up to 3 times on 503
+            try:
+                response = client.models.generate_content(
+                    model=MODEL,
+                    contents=SYSTEM_PROMPT + "\n\n" + prompt,
+                )
+                break
+            except Exception as e:
+                if "503" in str(e) and attempt < 2:
+                    wait = (attempt + 1) * 10  # 10s, 20s backoff
+                    logger.warning(f"Gemini 503 for {ticker}, retrying in {wait}s...")
+                    time.sleep(wait)
+                else:
+                    raise
         raw = response.text.strip()
 
         parsed = json.loads(raw)
