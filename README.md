@@ -6,7 +6,6 @@
 >
 > ⚠️ Disclaimer
 This project is for educational and research purposes only and does not constitute financial advice. All signals and outputs are experimental and should not be used for real-world investment decisions without independent verification.
-:::
 
 ## Stack
 
