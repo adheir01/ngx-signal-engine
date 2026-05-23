@@ -3,6 +3,10 @@
 > Personal investment tool designed to standardize signal generation and decision-making in a market with limited data accessibility and tooling.
 > The Nigerian Stock Exchange (NGX).
 > Technical signals, LLM-filtered explanations, backtesting, and NGX vs EU/US comparison.
+>
+> ⚠️ Disclaimer
+This project is for educational and research purposes only and does not constitute financial advice. All signals and outputs are experimental and should not be used for real-world investment decisions without independent verification.
+:::
 
 ## Stack
 
