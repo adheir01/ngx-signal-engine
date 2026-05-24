@@ -3,6 +3,9 @@
 > Personal investment tool designed to standardize signal generation and decision-making in a market with limited data accessibility and tooling.
 > The Nigerian Stock Exchange (NGX).
 > Technical signals, LLM-filtered explanations, backtesting, and NGX vs EU/US comparison.
+>
+> ⚠️ Disclaimer
+This project is for educational and research purposes only and does not constitute financial advice. All signals and outputs are experimental and should not be used for real-world investment decisions without independent verification.
 
 ## Stack
 
@@ -55,22 +58,22 @@ Dashboard Preview
 - Current Signals (with LLM explanations)
 ![Signals](docs/screenshots/signals.png)
 
-Shows BUY / SELL / HOLD signals with strength scores, RSI, and LLM-generated explanations including risk flags.
+    Shows BUY / SELL / HOLD signals with strength scores, RSI, and LLM-generated explanations including risk flags.
 
 - Top Opportunities (Ranked Signals)
 ![Signals](docs/screenshots/opportunities.png)
 
-Ranks top BUY signals by score, highlighting strongest opportunities and LLM risk classifications.
+    Ranks top BUY signals by score, highlighting strongest opportunities and LLM risk classifications.
 
 - Portfolio Construction (Decision Layer)
 ![Signals](docs/screenshots/portfolio.png)
 
-Top 5 BUY signals selected, equal-weighted (20% each), with high-risk positions excluded by the LLM filter.
+    Top 5 BUY signals selected, equal-weighted (20% each), with high-risk positions excluded by the LLM filter.
 
 - NGX vs Global Markets Comparison
 ![Signals](docs/screenshots/comparison.png)
 
-Compares volatility and volume behavior between NGX and EU/US markets, highlighting differences in price discovery.
+    Compares volatility and volume behavior between NGX and EU/US markets, highlighting differences in price discovery.
 
 
 
@@ -123,6 +126,7 @@ comparison against NGX.
 Features are computed in dbt, not Python. This keeps analytical
 logic version-controlled, testable, and reproducible.
 
+```
 staging/
 stg_prices.sql          — unified NGX + global prices
 stg_ngx_prices.sql      — NGX only view
@@ -136,6 +140,7 @@ fct_features.sql         — master feature table (one row per ticker per day)
 mart_signal_performance.sql
 mart_backtest_results.sql
 mart_ngx_vs_global.sql
+```
 
 Run dbt after each ingestion:
 ```bash
